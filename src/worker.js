@@ -6,6 +6,18 @@ import { vectorStore as getVectorStore } from "./vector-store.js";
 
 dotenv.config();
 
+// Parse Redis URL for BullMQ
+const redisConnection = process.env.REDIS_URL 
+  ? { 
+      url: process.env.REDIS_URL,
+      maxRetriesPerRequest: null // Important for BullMQ
+    }
+  : {
+      host: '127.0.0.1',
+      port: 6379,
+      maxRetriesPerRequest: null
+    };
+
 const worker = new Worker(
   "file-upload-queue",
   async (job) => {
@@ -13,27 +25,12 @@ const worker = new Worker(
     const data = JSON.parse(job.data);
     console.log(`Processing file: ${data.path}`);
 
-    // 1. Load PDF
     const loader = new PDFLoader(data.path);
     const docs = await loader.load();
     console.log("Loaded documents");
 
-    // 2. Split into chunks
-    // const splitter = new CharacterTextSplitter({
-    //   chunkSize: 500,
-    //   chunkOverlap: 50,
-    // });
-    // const splitDocs = await splitter.splitDocuments(docs);
-    // console.log("Split into chunks:", splitDocs.length);
+    const vectorStore = await getVectorStore();
 
-    // 3. Create embedding instance
-    
-
-    // 4. Connect to vector DB
-    
-    const vectorStore = await getVectorStore()
-
-    // 5. Add documents
     try {
       await vectorStore.addDocuments(docs);
       console.log("Documents added to vector store");
@@ -43,6 +40,16 @@ const worker = new Worker(
   },
   {
     concurrency: 100,
-    connection: process.env.REDIS_URL
+    connection: redisConnection
   }
 );
+
+worker.on('completed', (job) => {
+  console.log(`Job ${job.id} completed`);
+});
+
+worker.on('failed', (job, err) => {
+  console.error(`Job ${job?.id} failed:`, err);
+});
+
+console.log('Worker started and waiting for jobs...');
