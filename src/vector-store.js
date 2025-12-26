@@ -10,7 +10,7 @@ export const vectorStore = async()=>{
     });
     console.log("Embeddings initialized");
       const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, {
-        url: "http://localhost:6333",
+        url: process.env.QDRANT_URL,
         collectionName: "pdf-docs",
       });
       console.log("Vector store initialized");
