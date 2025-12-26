@@ -11,6 +11,7 @@ export const vectorStore = async()=>{
     console.log("Embeddings initialized");
       const vectorStore = await QdrantVectorStore.fromExistingCollection(embeddings, {
         url: process.env.QDRANT_URL,
+        apiKey: process.env.QDRANT_API_KEY,
         collectionName: "pdf-docs",
       });
       console.log("Vector store initialized");
