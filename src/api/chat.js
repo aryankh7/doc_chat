@@ -14,6 +14,7 @@ export const chat = async (req, res) => {
       k: 2,
     });
     const result = await retriever.invoke(query);
+    console.log("Retrieved Documents:", result);
     const context = result.map((doc) => doc.pageContent).join("\n");
     console.log("Retrieved Context:", context);
 
