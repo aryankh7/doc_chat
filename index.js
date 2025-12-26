@@ -5,10 +5,15 @@ import { handleUpload } from './src/api/handleUpload.js';
 import {chat} from "./src/api/chat.js"
 const app = express();
 const PORT = process.env.PORT || 3000;
+const ALLOWED_ORIGIN = "https://chatpdf-chatpdf.up.railway.app";
+
+app.use((req, res, next) => {
+  console.log("REQ:", req.method, req.url);
+  next();
+});
+
 app.use(cors({
-    origin: "https://chatpdf-chatpdf.up.railway.app", // ❗ no trailing slash
-  methods: ["GET", "POST", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
+  origin: ALLOWED_ORIGIN,
   credentials: true,
 }));
 app.use(express.json());
