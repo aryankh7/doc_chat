@@ -43,9 +43,6 @@ const worker = new Worker(
   },
   {
     concurrency: 100,
-    connection: {
-      host: process.env.REDIS_HOST,
-      port: Number(process.env.REDIS_PORT)
-    },
+    connection: process.env.REDIS_URL
   }
 );

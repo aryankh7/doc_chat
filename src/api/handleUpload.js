@@ -2,10 +2,7 @@ import { Queue } from 'bullmq';
 import dotenv from 'dotenv';
 dotenv.config();
 const myQueue = new Queue('file-upload-queue', {
-    connection: {
-        host: process.env.REDIS_HOST, // Redis server host
-        port: Number(process.env.REDIS_PORT), // Redis server port
-    },
+    connection: process.env.REDIS_URL,
 });
 export async function handleUpload(req, res) {
     try {
