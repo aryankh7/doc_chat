@@ -6,10 +6,10 @@ import {chat} from "./src/api/chat.js"
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(cors({
-    origin: 'https://chatpdf-chatpdf.up.railway.app', // Adjust as needed for security
-    methods: ['GET', 'POST'],
-    credentials: true,
-    // allowedHeaders: ['Content-Type'],
+    origin: "https://chatpdf-chatpdf.up.railway.app", // ❗ no trailing slash
+  methods: ["GET", "POST", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
 }));
 app.use(express.json());
 
