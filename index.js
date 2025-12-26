@@ -15,7 +15,7 @@ app.use(express.json());
 app.get('/', (req, res) => {
     res.send('Server is running');
 });
-app.post('/upload', upload, handleUpload);
+app.post('/upload', upload.single("file"), handleUpload);
 
 app.post('/chat', chat)
 app.listen(PORT, () => {
