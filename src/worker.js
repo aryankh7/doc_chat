@@ -3,7 +3,6 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { CharacterTextSplitter } from "@langchain/textsplitters";
 import dotenv from "dotenv";
 import { vectorStore as getVectorStore } from "./vector-store.js";
-import { QdrantClient } from "@qdrant/js-client-rest";
 
 dotenv.config();
 
@@ -33,63 +32,10 @@ const worker = new Worker(
     const vectorStore = await getVectorStore();
 
     try {
-      // Initialize Qdrant client to check for existing embeddings
-      const qdrantClient = new QdrantClient({
-        url: process.env.QDRANT_URL,
-        apiKey: process.env.QDRANT_API_KEY,
-      });
-
-      const collectionName = "pdf-docs";
-      
-      // Check if collection exists and has points with this filename
-      try {
-        const scrollResult = await qdrantClient.scroll(collectionName, {
-          filter: {
-            must: [
-              {
-                key: "metadata.source",
-                match: {
-                  value: data.path
-                }
-              }
-            ]
-          },
-          limit: 100,
-          with_payload: true,
-          with_vector: false
-        });
-
-        // If points exist, delete them
-        if (scrollResult.points && scrollResult.points.length > 0) {
-          console.log(`Found ${scrollResult.points.length} existing embeddings for file: ${data.filename}`);
-          
-          await qdrantClient.delete(collectionName, {
-            filter: {
-              must: [
-                {
-                  key: "metadata.source",
-                  match: {
-                    value: data.path
-                  }
-                }
-              ]
-            }
-          });
-          
-          console.log(`Deleted existing embeddings for file: ${data.filename}`);
-        } else {
-          console.log(`No existing embeddings found for file: ${data.filename}`);
-        }
-      } catch (checkErr) {
-        console.log("Error checking for existing embeddings (collection may not exist yet):", checkErr.message);
-      }
-
-      // Add new documents to vector store
       await vectorStore.addDocuments(docs);
       console.log("Documents added to vector store");
     } catch (err) {
       console.error("Error adding documents to vector store:", err);
-      throw err;
     }
   },
   {
